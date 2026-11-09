@@ -197,8 +197,9 @@
           return true;
         }
 
-        // Initial playlist: defaults, then ?songs=&titles= from the URL.
-        DEFAULT_SONGS.forEach(function (s) { addSong(s.id, s.title); });
+        // Initial playlist: when ?songs= names songs, show only those;
+        // the defaults appear only when no songs are specified in the URL.
+        var initial = [];
         try {
           var params = new URLSearchParams(window.location.search);
           var qSongs = params.get('songs');
@@ -206,10 +207,11 @@
             var qTitles = (params.get('titles') || '').split(',');
             qSongs.split(',').forEach(function (piece, i) {
               var id = parseSongId(piece);
-              if (id) addSong(id, (qTitles[i] || '').trim());
+              if (id) initial.push({ id: id, title: (qTitles[i] || '').trim() });
             });
           }
         } catch (e) { /* ignore malformed query */ }
+        (initial.length ? initial : DEFAULT_SONGS).forEach(function (s) { addSong(s.id, s.title); });
 
         var listEl = document.getElementById('list');
         var emptyEl = document.getElementById('empty');
